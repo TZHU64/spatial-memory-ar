@@ -1,0 +1,495 @@
+{
+  "fixture_version": "0.5",
+  "description": "05-late-evidence-ordering",
+  "synthetic": true,
+  "source_mode": "replay",
+  "initial_config": {
+    "current_claims_enabled": false,
+    "negative_evidence_enabled": true,
+    "max_capture_age_ms": 5000
+  },
+  "steps": [
+    {
+      "name": "Create paused session and explicitly start",
+      "inputs": [
+        {
+          "record_type": "wire_message",
+          "value": {
+            "schema_version": "0.5",
+            "message_type": "hello",
+            "message_id": "msg_1",
+            "session_id": null,
+            "sender_id": "x3_client",
+            "sent_monotonic_ms": 0,
+            "payload": {
+              "mode": "create",
+              "pairing_token": "synthetic-token-not-a-secret",
+              "creation_key": "create_1",
+              "enrollment_snapshot_id": "enrollment_v1",
+              "source_mode": "replay",
+              "last_memory_revision": 0
+            }
+          }
+        },
+        {
+          "record_type": "wire_message",
+          "value": {
+            "schema_version": "0.5",
+            "message_type": "hello_ack",
+            "message_id": "msg_2",
+            "session_id": "session_1",
+            "sender_id": "backend",
+            "sent_monotonic_ms": 0,
+            "payload": {
+              "memory_revision": 0,
+              "session_status": "paused",
+              "config_version": "config_v1",
+              "enrollment_snapshot_id": "enrollment_v1",
+              "source_mode": "replay"
+            }
+          }
+        },
+        {
+          "record_type": "wire_message",
+          "value": {
+            "schema_version": "0.5",
+            "message_type": "session_command",
+            "message_id": "msg_3",
+            "session_id": "session_1",
+            "sender_id": "x3_client",
+            "sent_monotonic_ms": 0,
+            "payload": {
+              "request_id": "start_1",
+              "command": "start",
+              "capture_epoch_id": "epoch_1"
+            }
+          }
+        },
+        {
+          "record_type": "wire_message",
+          "value": {
+            "schema_version": "0.5",
+            "message_type": "ack",
+            "message_id": "msg_4",
+            "session_id": "session_1",
+            "sender_id": "backend",
+            "sent_monotonic_ms": 0,
+            "payload": {
+              "acked_message_id": "msg_3",
+              "request_id": "start_1",
+              "stage": "applied",
+              "memory_revision": 1
+            }
+          }
+        }
+      ],
+      "expected_observations": [],
+      "expected_answer": null,
+      "expected_disposition": "accepted"
+    },
+    {
+      "name": "Desk first",
+      "inputs": [
+        {
+          "record_type": "wire_message",
+          "value": {
+            "schema_version": "0.5",
+            "message_type": "frame",
+            "message_id": "msg_25",
+            "session_id": "session_1",
+            "sender_id": "x3_client",
+            "sent_monotonic_ms": 1020,
+            "payload": {
+              "frame_id": "old_desk",
+              "request_id": null,
+              "capture_epoch_id": "epoch_1",
+              "camera_role": "rgb_main",
+              "camera_id": "measured_rgb_placeholder",
+              "capture_adapter": "camera2",
+              "sensor_timestamp_ns": "1000000000",
+              "timestamp_source": "realtime",
+              "clock_id": "camera_clock_1",
+              "captured_at": {
+                "wall_time": "2026-09-21T14:32:01+08:00",
+                "quality": "mapped",
+                "capture_monotonic_ms": 1000,
+                "uncertainty_ms": 0,
+                "device_boot_id": "boot_1"
+              },
+              "callback_monotonic_ms": 1010,
+              "width": 1920,
+              "height": 1080,
+              "encoding": "jpeg",
+              "source_rotation_degrees": 0,
+              "source_is_mirrored": false,
+              "source_mode": "replay",
+              "payload_bytes": 100,
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "acquisition_started_monotonic_ms": null
+            }
+          }
+        },
+        {
+          "record_type": "scene_result",
+          "value": {
+            "job_id": "job_old_desk",
+            "frame_id": "old_desk",
+            "request_id": null,
+            "status": "complete",
+            "object_candidates": [
+              {
+                "object_id": "phone_01",
+                "identity": "match",
+                "anchor_id": "desk_01",
+                "relation": "on",
+                "bbox": [
+                  0.3,
+                  0.3,
+                  0.5,
+                  0.5
+                ]
+              }
+            ],
+            "target_check": null
+          }
+        }
+      ],
+      "expected_observations": [
+        {
+          "observation_id": "obs_old_desk",
+          "session_id": "session_1",
+          "source_mode": "replay",
+          "capture_epoch_id": "epoch_1",
+          "frame_id": "old_desk",
+          "object_id": "phone_01",
+          "kind": "positive",
+          "captured_at": {
+            "wall_time": "2026-09-21T14:32:01+08:00",
+            "quality": "mapped",
+            "capture_monotonic_ms": 1000,
+            "uncertainty_ms": 0,
+            "device_boot_id": "boot_1"
+          },
+          "anchor_id": "desk_01",
+          "region": {
+            "anchor_id": "desk_01",
+            "region_id": "desk_01_region",
+            "region_version": "region_v1"
+          },
+          "region_assessment_id": null,
+          "inference_job_id": "job_old_desk",
+          "validation_id": "validation_old_desk",
+          "enrollment_version": "enrollment_v1",
+          "config_version": "config_v1"
+        }
+      ],
+      "expected_answer": null,
+      "expected_disposition": "accepted"
+    },
+    {
+      "name": "Desk check frame captured; response delayed",
+      "inputs": [
+        {
+          "record_type": "wire_message",
+          "value": {
+            "schema_version": "0.5",
+            "message_type": "query",
+            "message_id": "msg_26",
+            "session_id": "session_1",
+            "sender_id": "x3_client",
+            "sent_monotonic_ms": 1900,
+            "payload": {
+              "request_id": "q_oldcheck",
+              "object_id": "phone_01",
+              "intent": "check_region",
+              "region": {
+                "anchor_id": "desk_01",
+                "region_id": "desk_01_region",
+                "region_version": "region_v1"
+              },
+              "capture_epoch_id": "epoch_1",
+              "accepted_monotonic_ms": 1900
+            }
+          }
+        },
+        {
+          "record_type": "wire_message",
+          "value": {
+            "schema_version": "0.5",
+            "message_type": "frame",
+            "message_id": "msg_27",
+            "session_id": "session_1",
+            "sender_id": "x3_client",
+            "sent_monotonic_ms": 2020,
+            "payload": {
+              "frame_id": "old_empty",
+              "request_id": "q_oldcheck",
+              "capture_epoch_id": "epoch_1",
+              "camera_role": "rgb_main",
+              "camera_id": "measured_rgb_placeholder",
+              "capture_adapter": "camera2",
+              "sensor_timestamp_ns": "2000000000",
+              "timestamp_source": "realtime",
+              "clock_id": "camera_clock_1",
+              "captured_at": {
+                "wall_time": "2026-09-21T14:32:02+08:00",
+                "quality": "mapped",
+                "capture_monotonic_ms": 2000,
+                "uncertainty_ms": 0,
+                "device_boot_id": "boot_1"
+              },
+              "callback_monotonic_ms": 2010,
+              "width": 1920,
+              "height": 1080,
+              "encoding": "jpeg",
+              "source_rotation_degrees": 0,
+              "source_is_mirrored": false,
+              "source_mode": "replay",
+              "payload_bytes": 100,
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "acquisition_started_monotonic_ms": 1950
+            }
+          }
+        }
+      ],
+      "expected_observations": [],
+      "expected_answer": null,
+      "expected_disposition": "accepted"
+    },
+    {
+      "name": "Newer shelf positive completes first",
+      "inputs": [
+        {
+          "record_type": "wire_message",
+          "value": {
+            "schema_version": "0.5",
+            "message_type": "frame",
+            "message_id": "msg_28",
+            "session_id": "session_1",
+            "sender_id": "x3_client",
+            "sent_monotonic_ms": 16020,
+            "payload": {
+              "frame_id": "new_shelf",
+              "request_id": null,
+              "capture_epoch_id": "epoch_1",
+              "camera_role": "rgb_main",
+              "camera_id": "measured_rgb_placeholder",
+              "capture_adapter": "camera2",
+              "sensor_timestamp_ns": "16000000000",
+              "timestamp_source": "realtime",
+              "clock_id": "camera_clock_1",
+              "captured_at": {
+                "wall_time": "2026-09-21T14:32:16+08:00",
+                "quality": "mapped",
+                "capture_monotonic_ms": 16000,
+                "uncertainty_ms": 0,
+                "device_boot_id": "boot_1"
+              },
+              "callback_monotonic_ms": 16010,
+              "width": 1920,
+              "height": 1080,
+              "encoding": "jpeg",
+              "source_rotation_degrees": 0,
+              "source_is_mirrored": false,
+              "source_mode": "replay",
+              "payload_bytes": 100,
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "acquisition_started_monotonic_ms": null
+            }
+          }
+        },
+        {
+          "record_type": "scene_result",
+          "value": {
+            "job_id": "job_new_shelf",
+            "frame_id": "new_shelf",
+            "request_id": null,
+            "status": "complete",
+            "object_candidates": [
+              {
+                "object_id": "phone_01",
+                "identity": "match",
+                "anchor_id": "shelf_01",
+                "relation": "on",
+                "bbox": [
+                  0.3,
+                  0.3,
+                  0.5,
+                  0.5
+                ]
+              }
+            ],
+            "target_check": null
+          }
+        }
+      ],
+      "expected_observations": [
+        {
+          "observation_id": "obs_new_shelf",
+          "session_id": "session_1",
+          "source_mode": "replay",
+          "capture_epoch_id": "epoch_1",
+          "frame_id": "new_shelf",
+          "object_id": "phone_01",
+          "kind": "positive",
+          "captured_at": {
+            "wall_time": "2026-09-21T14:32:16+08:00",
+            "quality": "mapped",
+            "capture_monotonic_ms": 16000,
+            "uncertainty_ms": 0,
+            "device_boot_id": "boot_1"
+          },
+          "anchor_id": "shelf_01",
+          "region": {
+            "anchor_id": "shelf_01",
+            "region_id": "shelf_01_region",
+            "region_version": "region_v1"
+          },
+          "region_assessment_id": null,
+          "inference_job_id": "job_new_shelf",
+          "validation_id": "validation_new_shelf",
+          "enrollment_version": "enrollment_v1",
+          "config_version": "config_v1"
+        }
+      ],
+      "expected_answer": null,
+      "expected_disposition": "accepted"
+    },
+    {
+      "name": "Late desk negative does not contradict shelf",
+      "inputs": [
+        {
+          "record_type": "scene_result",
+          "value": {
+            "job_id": "job_old_empty",
+            "frame_id": "old_empty",
+            "request_id": "q_oldcheck",
+            "status": "complete",
+            "object_candidates": [],
+            "target_check": {
+              "object_id": "phone_01",
+              "region": {
+                "anchor_id": "desk_01",
+                "region_id": "desk_01_region",
+                "region_version": "region_v1"
+              },
+              "target_presence": "not_detected"
+            }
+          }
+        },
+        {
+          "record_type": "region_assessment",
+          "value": {
+            "assessment_id": "assessment_old_empty",
+            "frame_id": "old_empty",
+            "request_id": "q_oldcheck",
+            "region": {
+              "anchor_id": "desk_01",
+              "region_id": "desk_01_region",
+              "region_version": "region_v1"
+            },
+            "projected_polygon": [
+              [
+                0.1,
+                0.1
+              ],
+              [
+                0.9,
+                0.1
+              ],
+              [
+                0.9,
+                0.9
+              ],
+              [
+                0.1,
+                0.9
+              ]
+            ],
+            "registration": "pass",
+            "coverage": "pass",
+            "quality": "pass",
+            "occlusion": "pass",
+            "covers_prior_uncertainty_region": true,
+            "operating_envelope_validated": true,
+            "method_version": "synthetic_method_v1",
+            "config_version": "config_v1",
+            "reason_codes": []
+          }
+        },
+        {
+          "record_type": "wire_message",
+          "value": {
+            "schema_version": "0.5",
+            "message_type": "query",
+            "message_id": "msg_29",
+            "session_id": "session_1",
+            "sender_id": "x3_client",
+            "sent_monotonic_ms": 18000,
+            "payload": {
+              "request_id": "q_order",
+              "object_id": "phone_01",
+              "intent": "current_location",
+              "region": null,
+              "capture_epoch_id": null,
+              "accepted_monotonic_ms": 18000
+            }
+          }
+        }
+      ],
+      "expected_observations": [
+        {
+          "observation_id": "obs_old_empty",
+          "session_id": "session_1",
+          "source_mode": "replay",
+          "capture_epoch_id": "epoch_1",
+          "frame_id": "old_empty",
+          "object_id": "phone_01",
+          "kind": "negative",
+          "captured_at": {
+            "wall_time": "2026-09-21T14:32:02+08:00",
+            "quality": "mapped",
+            "capture_monotonic_ms": 2000,
+            "uncertainty_ms": 0,
+            "device_boot_id": "boot_1"
+          },
+          "anchor_id": "desk_01",
+          "region": {
+            "anchor_id": "desk_01",
+            "region_id": "desk_01_region",
+            "region_version": "region_v1"
+          },
+          "region_assessment_id": "assessment_old_empty",
+          "inference_job_id": "job_old_empty",
+          "validation_id": "validation_old_empty",
+          "enrollment_version": "enrollment_v1",
+          "config_version": "config_v1"
+        }
+      ],
+      "expected_answer": {
+        "request_id": "q_order",
+        "object_id": "phone_01",
+        "intent": "current_location",
+        "evidence_status": "historical",
+        "spatial_status": "unavailable",
+        "text": "Last seen on shelf_01",
+        "evidence_ids": [
+          "obs_new_shelf"
+        ],
+        "display_mode": "semantic_card",
+        "memory_revision": 4,
+        "anchor_id": "shelf_01",
+        "last_seen_at": {
+          "wall_time": "2026-09-21T14:32:16+08:00",
+          "quality": "mapped",
+          "capture_monotonic_ms": 16000,
+          "uncertainty_ms": 0,
+          "device_boot_id": "boot_1"
+        },
+        "check_outcome": null,
+        "current_lease": null
+      },
+      "expected_disposition": "accepted"
+    }
+  ]
+}

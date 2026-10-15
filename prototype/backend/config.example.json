@@ -1,0 +1,11 @@
+{
+  "model": "mimo-v2.6-flash",
+  "api_key": "",
+  "pairing_token": "",
+  "references": {
+    "phone_01": "references/phone.jpg",
+    "desk_01": "references/desk.jpg",
+    "shelf_01": "references/shelf.jpg"
+  },
+  "memory_mode": "scene"
+}

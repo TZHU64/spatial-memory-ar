@@ -1,0 +1,20 @@
+{
+  "analysis_hz": 6.0,
+  "s0_whole_change": 0.025,
+  "s0_patch_change": 0.065,
+  "min_brightness": 0.03,
+  "max_brightness": 0.98,
+  "min_sharpness": 22.0,
+  "global_novelty": 0.45,
+  "region_novelty": 0.5,
+  "min_global_for_region": 0.12,
+  "persistence_seconds": 0.6,
+  "persistence_samples": 4,
+  "pending_max_distance": 0.16,
+  "prototype_limit": 64,
+  "max_rgb_captures": 12,
+  "rgb_capture_latency_ms": 0,
+  "max_pair_delay_ms": 150,
+  "rgb_duplicate_global": 0.035,
+  "rgb_duplicate_region": 0.07
+}

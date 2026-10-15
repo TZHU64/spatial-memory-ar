@@ -1,0 +1,197 @@
+{
+  "type": "object",
+  "properties": {
+    "fixture_version": {
+      "const": "0.5"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "synthetic": {
+      "const": true
+    },
+    "source_mode": {
+      "const": "replay"
+    },
+    "initial_config": {
+      "type": "object",
+      "properties": {
+        "current_claims_enabled": {
+          "type": "boolean"
+        },
+        "negative_evidence_enabled": {
+          "type": "boolean"
+        },
+        "max_capture_age_ms": {
+          "const": 5000
+        }
+      },
+      "required": [
+        "current_claims_enabled",
+        "negative_evidence_enabled",
+        "max_capture_age_ms"
+      ],
+      "additionalProperties": false
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "inputs": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "record_type": {
+                      "const": "wire_message"
+                    },
+                    "value": {
+                      "$ref": "protocol.schema.json#/$defs/wire_message"
+                    }
+                  },
+                  "required": [
+                    "record_type",
+                    "value"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "record_type": {
+                      "const": "scene_result"
+                    },
+                    "value": {
+                      "$ref": "protocol.schema.json#/$defs/scene_result"
+                    }
+                  },
+                  "required": [
+                    "record_type",
+                    "value"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "record_type": {
+                      "const": "region_assessment"
+                    },
+                    "value": {
+                      "$ref": "protocol.schema.json#/$defs/region_assessment"
+                    }
+                  },
+                  "required": [
+                    "record_type",
+                    "value"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "record_type": {
+                      "const": "local_event"
+                    },
+                    "value": {
+                      "type": "object",
+                      "properties": {
+                        "event": {
+                          "enum": [
+                            "continuity_lost",
+                            "continuity_valid",
+                            "lease_expired",
+                            "backend_restart"
+                          ]
+                        },
+                        "at_monotonic_ms": {
+                          "type": "number",
+                          "minimum": 0
+                        },
+                        "frame_id": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^[A-Za-z0-9_-]{1,128}$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "event",
+                        "at_monotonic_ms",
+                        "frame_id"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "record_type",
+                    "value"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            },
+            "minItems": 1
+          },
+          "expected_observations": {
+            "type": "array",
+            "items": {
+              "$ref": "protocol.schema.json#/$defs/observation"
+            },
+            "minItems": 0
+          },
+          "expected_answer": {
+            "anyOf": [
+              {
+                "$ref": "protocol.schema.json#/$defs/answer_payload"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "expected_disposition": {
+            "enum": [
+              "accepted",
+              "inconclusive",
+              "rejected_deleted_session"
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "inputs",
+          "expected_observations",
+          "expected_answer",
+          "expected_disposition"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    }
+  },
+  "required": [
+    "fixture_version",
+    "description",
+    "synthetic",
+    "source_mode",
+    "initial_config",
+    "steps"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spatial-memory.invalid/protocol/0.5/fixture.schema.json"
+}

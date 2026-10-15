@@ -1,0 +1,464 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spatial-memory.invalid/protocol/0.6/minimal-demo.schema.json",
+  "title": "Minimal RGB VLM demo 0.6",
+  "$defs": {
+    "session": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "0.6"
+        },
+        "session_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,128}$"
+        },
+        "enrollment_version": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,128}$"
+        }
+      },
+      "required": [
+        "schema_version",
+        "session_id",
+        "enrollment_version"
+      ],
+      "additionalProperties": false
+    },
+    "observe_request": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "0.6"
+        },
+        "session_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,128}$"
+        },
+        "request_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,128}$"
+        },
+        "capture_sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "capture_mode": {
+          "enum": [
+            "automatic",
+            "manual"
+          ]
+        },
+        "captured_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "time_quality": {
+          "enum": [
+            "mapped",
+            "approximate"
+          ]
+        },
+        "sensor_timestamp_ns": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "image_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "required": [
+        "schema_version",
+        "session_id",
+        "request_id",
+        "capture_sequence",
+        "captured_at",
+        "time_quality",
+        "sensor_timestamp_ns",
+        "image_sha256"
+      ],
+      "additionalProperties": false
+    },
+    "recall_request": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "0.6"
+        },
+        "session_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,128}$"
+        },
+        "request_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,128}$"
+        }
+      },
+      "required": [
+        "schema_version",
+        "session_id",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "model_proposal": {
+      "type": "object",
+      "properties": {
+        "target_presence": {
+          "enum": [
+            "present",
+            "not_detected",
+            "uncertain"
+          ]
+        },
+        "identity": {
+          "enum": [
+            "match",
+            "ambiguous",
+            "unknown"
+          ]
+        },
+        "location_id": {
+          "anyOf": [
+            {
+              "enum": [
+                "desk_01",
+                "shelf_01"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "view_quality": {
+          "enum": [
+            "clear",
+            "uncertain"
+          ]
+        }
+      },
+      "required": [
+        "target_presence",
+        "identity",
+        "location_id",
+        "view_quality"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "identity": {
+                "const": "match"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "target_presence": {
+                "const": "present"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "target_presence": {
+                "const": "not_detected"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "identity": {
+                "const": "unknown"
+              },
+              "location_id": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "sighting": {
+      "type": "object",
+      "properties": {
+        "observation_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,128}$"
+        },
+        "source_request_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,128}$"
+        },
+        "capture_sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "object_id": {
+          "const": "phone_01"
+        },
+        "location_id": {
+          "anyOf": [
+            {
+              "enum": [
+                "desk_01",
+                "shelf_01"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "captured_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "time_quality": {
+          "enum": [
+            "mapped",
+            "approximate"
+          ]
+        }
+      },
+      "required": [
+        "observation_id",
+        "source_request_id",
+        "capture_sequence",
+        "object_id",
+        "location_id",
+        "captured_at",
+        "time_quality"
+      ],
+      "additionalProperties": false
+    },
+    "memory": {
+      "type": "object",
+      "properties": {
+        "evidence_status": {
+          "enum": [
+            "historical",
+            "unknown"
+          ]
+        },
+        "sighting": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/sighting"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "evidence_status",
+        "sighting"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "evidence_status": {
+                "const": "historical"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "sighting": {
+                "$ref": "#/$defs/sighting"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "sighting": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "observe_response": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "0.6"
+        },
+        "session_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,128}$"
+        },
+        "request_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,128}$"
+        },
+        "outcome": {
+          "enum": [
+            "saved",
+            "not_detected",
+            "uncertain"
+          ]
+        },
+        "notice": {
+          "type": "string",
+          "minLength": 1
+        },
+        "memory": {
+          "$ref": "#/$defs/memory"
+        }
+      },
+      "required": [
+        "schema_version",
+        "session_id",
+        "request_id",
+        "outcome",
+        "notice",
+        "memory"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "outcome": {
+                "const": "saved"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "memory": {
+                "properties": {
+                  "evidence_status": {
+                    "const": "historical"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "recall_response": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "0.6"
+        },
+        "session_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,128}$"
+        },
+        "request_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,128}$"
+        },
+        "memory": {
+          "$ref": "#/$defs/memory"
+        }
+      },
+      "required": [
+        "schema_version",
+        "session_id",
+        "request_id",
+        "memory"
+      ],
+      "additionalProperties": false
+    },
+    "error": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "0.6"
+        },
+        "session_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{1,128}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "request_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{1,128}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "code": {
+          "enum": [
+            "unauthenticated",
+            "no_active_session",
+            "closed_session",
+            "invalid_request",
+            "invalid_image",
+            "id_conflict",
+            "busy",
+            "request_pending",
+            "model_failed"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "schema_version",
+        "session_id",
+        "request_id",
+        "code",
+        "message"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/session"
+    },
+    {
+      "$ref": "#/$defs/observe_request"
+    },
+    {
+      "$ref": "#/$defs/recall_request"
+    },
+    {
+      "$ref": "#/$defs/model_proposal"
+    },
+    {
+      "$ref": "#/$defs/observe_response"
+    },
+    {
+      "$ref": "#/$defs/recall_response"
+    },
+    {
+      "$ref": "#/$defs/error"
+    }
+  ]
+}

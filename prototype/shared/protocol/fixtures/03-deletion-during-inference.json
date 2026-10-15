@@ -1,0 +1,211 @@
+{
+  "fixture_version": "0.5",
+  "description": "03-deletion-during-inference",
+  "synthetic": true,
+  "source_mode": "replay",
+  "initial_config": {
+    "current_claims_enabled": false,
+    "negative_evidence_enabled": true,
+    "max_capture_age_ms": 5000
+  },
+  "steps": [
+    {
+      "name": "Create paused session and explicitly start",
+      "inputs": [
+        {
+          "record_type": "wire_message",
+          "value": {
+            "schema_version": "0.5",
+            "message_type": "hello",
+            "message_id": "msg_1",
+            "session_id": null,
+            "sender_id": "x3_client",
+            "sent_monotonic_ms": 0,
+            "payload": {
+              "mode": "create",
+              "pairing_token": "synthetic-token-not-a-secret",
+              "creation_key": "create_1",
+              "enrollment_snapshot_id": "enrollment_v1",
+              "source_mode": "replay",
+              "last_memory_revision": 0
+            }
+          }
+        },
+        {
+          "record_type": "wire_message",
+          "value": {
+            "schema_version": "0.5",
+            "message_type": "hello_ack",
+            "message_id": "msg_2",
+            "session_id": "session_1",
+            "sender_id": "backend",
+            "sent_monotonic_ms": 0,
+            "payload": {
+              "memory_revision": 0,
+              "session_status": "paused",
+              "config_version": "config_v1",
+              "enrollment_snapshot_id": "enrollment_v1",
+              "source_mode": "replay"
+            }
+          }
+        },
+        {
+          "record_type": "wire_message",
+          "value": {
+            "schema_version": "0.5",
+            "message_type": "session_command",
+            "message_id": "msg_3",
+            "session_id": "session_1",
+            "sender_id": "x3_client",
+            "sent_monotonic_ms": 0,
+            "payload": {
+              "request_id": "start_1",
+              "command": "start",
+              "capture_epoch_id": "epoch_1"
+            }
+          }
+        },
+        {
+          "record_type": "wire_message",
+          "value": {
+            "schema_version": "0.5",
+            "message_type": "ack",
+            "message_id": "msg_4",
+            "session_id": "session_1",
+            "sender_id": "backend",
+            "sent_monotonic_ms": 0,
+            "payload": {
+              "acked_message_id": "msg_3",
+              "request_id": "start_1",
+              "stage": "applied",
+              "memory_revision": 1
+            }
+          }
+        }
+      ],
+      "expected_observations": [],
+      "expected_answer": null,
+      "expected_disposition": "accepted"
+    },
+    {
+      "name": "Job in flight",
+      "inputs": [
+        {
+          "record_type": "wire_message",
+          "value": {
+            "schema_version": "0.5",
+            "message_type": "frame",
+            "message_id": "msg_20",
+            "session_id": "session_1",
+            "sender_id": "x3_client",
+            "sent_monotonic_ms": 1020,
+            "payload": {
+              "frame_id": "deleted",
+              "request_id": null,
+              "capture_epoch_id": "epoch_1",
+              "camera_role": "rgb_main",
+              "camera_id": "measured_rgb_placeholder",
+              "capture_adapter": "camera2",
+              "sensor_timestamp_ns": "1000000000",
+              "timestamp_source": "realtime",
+              "clock_id": "camera_clock_1",
+              "captured_at": {
+                "wall_time": "2026-09-21T14:32:01+08:00",
+                "quality": "mapped",
+                "capture_monotonic_ms": 1000,
+                "uncertainty_ms": 0,
+                "device_boot_id": "boot_1"
+              },
+              "callback_monotonic_ms": 1010,
+              "width": 1920,
+              "height": 1080,
+              "encoding": "jpeg",
+              "source_rotation_degrees": 0,
+              "source_is_mirrored": false,
+              "source_mode": "replay",
+              "payload_bytes": 100,
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "acquisition_started_monotonic_ms": null
+            }
+          }
+        }
+      ],
+      "expected_observations": [],
+      "expected_answer": null,
+      "expected_disposition": "accepted"
+    },
+    {
+      "name": "Delete before model returns",
+      "inputs": [
+        {
+          "record_type": "wire_message",
+          "value": {
+            "schema_version": "0.5",
+            "message_type": "session_command",
+            "message_id": "msg_19",
+            "session_id": "session_1",
+            "sender_id": "x3_client",
+            "sent_monotonic_ms": 2000,
+            "payload": {
+              "request_id": "delete_1",
+              "command": "reset",
+              "capture_epoch_id": null
+            }
+          }
+        },
+        {
+          "record_type": "wire_message",
+          "value": {
+            "schema_version": "0.5",
+            "message_type": "ack",
+            "message_id": "msg_21",
+            "session_id": "session_1",
+            "sender_id": "backend",
+            "sent_monotonic_ms": 0,
+            "payload": {
+              "acked_message_id": "msg_19",
+              "request_id": "delete_1",
+              "stage": "applied",
+              "memory_revision": 2
+            }
+          }
+        }
+      ],
+      "expected_observations": [],
+      "expected_answer": null,
+      "expected_disposition": "accepted"
+    },
+    {
+      "name": "Late positive cannot recreate deleted session",
+      "inputs": [
+        {
+          "record_type": "scene_result",
+          "value": {
+            "job_id": "job_deleted",
+            "frame_id": "deleted",
+            "request_id": null,
+            "status": "complete",
+            "object_candidates": [
+              {
+                "object_id": "phone_01",
+                "identity": "match",
+                "anchor_id": "desk_01",
+                "relation": "on",
+                "bbox": [
+                  0.3,
+                  0.3,
+                  0.5,
+                  0.5
+                ]
+              }
+            ],
+            "target_check": null
+          }
+        }
+      ],
+      "expected_observations": [],
+      "expected_answer": null,
+      "expected_disposition": "rejected_deleted_session"
+    }
+  ]
+}

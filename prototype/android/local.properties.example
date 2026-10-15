@@ -1,0 +1,7 @@
+# Copy to local.properties and set your Android SDK directory.
+sdk.dir=/path/to/Android/sdk
+# Prefer the MIMO_API_KEY environment variable; leave credentials out of Git.
+spatialMemory.mimoApiKey=
+spatialMemory.mimoModel=mimo-v2.6-flash
+spatialMemory.backendUrl=http://127.0.0.1:8765
+spatialMemory.pairingToken=

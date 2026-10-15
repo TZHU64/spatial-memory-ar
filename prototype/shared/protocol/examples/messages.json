@@ -1,0 +1,204 @@
+[
+  {
+    "schema_version": "0.5",
+    "message_type": "hello",
+    "message_id": "msg_1",
+    "session_id": null,
+    "sender_id": "x3_client",
+    "sent_monotonic_ms": 0,
+    "payload": {
+      "mode": "create",
+      "pairing_token": "synthetic-token-not-a-secret",
+      "creation_key": "create_1",
+      "enrollment_snapshot_id": "enrollment_v1",
+      "source_mode": "replay",
+      "last_memory_revision": 0
+    }
+  },
+  {
+    "schema_version": "0.5",
+    "message_type": "hello_ack",
+    "message_id": "msg_2",
+    "session_id": "session_1",
+    "sender_id": "backend",
+    "sent_monotonic_ms": 0,
+    "payload": {
+      "memory_revision": 0,
+      "session_status": "paused",
+      "config_version": "config_v1",
+      "enrollment_snapshot_id": "enrollment_v1",
+      "source_mode": "replay"
+    }
+  },
+  {
+    "schema_version": "0.5",
+    "message_type": "session_command",
+    "message_id": "msg_3",
+    "session_id": "session_1",
+    "sender_id": "x3_client",
+    "sent_monotonic_ms": 0,
+    "payload": {
+      "request_id": "start_1",
+      "command": "start",
+      "capture_epoch_id": "epoch_1"
+    }
+  },
+  {
+    "schema_version": "0.5",
+    "message_type": "ack",
+    "message_id": "msg_4",
+    "session_id": "session_1",
+    "sender_id": "backend",
+    "sent_monotonic_ms": 0,
+    "payload": {
+      "acked_message_id": "msg_3",
+      "request_id": "start_1",
+      "stage": "applied",
+      "memory_revision": 1
+    }
+  },
+  {
+    "schema_version": "0.5",
+    "message_type": "frame",
+    "message_id": "msg_30",
+    "session_id": "session_1",
+    "sender_id": "x3_client",
+    "sent_monotonic_ms": 1020,
+    "payload": {
+      "frame_id": "example",
+      "request_id": null,
+      "capture_epoch_id": "epoch_1",
+      "camera_role": "rgb_main",
+      "camera_id": "measured_rgb_placeholder",
+      "capture_adapter": "camera2",
+      "sensor_timestamp_ns": "1000000000",
+      "timestamp_source": "realtime",
+      "clock_id": "camera_clock_1",
+      "captured_at": {
+        "wall_time": "2026-09-21T14:32:01+08:00",
+        "quality": "mapped",
+        "capture_monotonic_ms": 1000,
+        "uncertainty_ms": 0,
+        "device_boot_id": "boot_1"
+      },
+      "callback_monotonic_ms": 1010,
+      "width": 1920,
+      "height": 1080,
+      "encoding": "jpeg",
+      "source_rotation_degrees": 0,
+      "source_is_mirrored": false,
+      "source_mode": "replay",
+      "payload_bytes": 100,
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "acquisition_started_monotonic_ms": null
+    }
+  },
+  {
+    "schema_version": "0.5",
+    "message_type": "query",
+    "message_id": "msg_31",
+    "session_id": "session_1",
+    "sender_id": "x3_client",
+    "sent_monotonic_ms": 0,
+    "payload": {
+      "request_id": "query_example",
+      "object_id": "phone_01",
+      "intent": "current_location",
+      "region": null,
+      "capture_epoch_id": null,
+      "accepted_monotonic_ms": 0
+    }
+  },
+  {
+    "schema_version": "0.5",
+    "message_type": "answer",
+    "message_id": "msg_32",
+    "session_id": "session_1",
+    "sender_id": "backend",
+    "sent_monotonic_ms": 0,
+    "payload": {
+      "request_id": "query_example",
+      "object_id": "phone_01",
+      "intent": "current_location",
+      "evidence_status": "unknown",
+      "spatial_status": "unavailable",
+      "text": "No saved sighting",
+      "evidence_ids": [],
+      "display_mode": "semantic_card",
+      "memory_revision": 1,
+      "anchor_id": null,
+      "last_seen_at": null,
+      "check_outcome": null,
+      "current_lease": null
+    }
+  },
+  {
+    "schema_version": "0.5",
+    "message_type": "status",
+    "message_id": "msg_33",
+    "session_id": "session_1",
+    "sender_id": "x3_client",
+    "sent_monotonic_ms": 0,
+    "payload": {
+      "capture_state": "live",
+      "capture_epoch_id": "epoch_1",
+      "source_mode": "replay",
+      "foreground": true,
+      "wear_state": "worn",
+      "current_claims_enabled": false
+    }
+  },
+  {
+    "schema_version": "0.5",
+    "message_type": "ping",
+    "message_id": "msg_34",
+    "session_id": "session_1",
+    "sender_id": "x3_client",
+    "sent_monotonic_ms": 0,
+    "payload": {
+      "nonce": "ping_1"
+    }
+  },
+  {
+    "schema_version": "0.5",
+    "message_type": "pong",
+    "message_id": "msg_35",
+    "session_id": "session_1",
+    "sender_id": "backend",
+    "sent_monotonic_ms": 0,
+    "payload": {
+      "nonce": "ping_1"
+    }
+  },
+  {
+    "schema_version": "0.5",
+    "message_type": "error",
+    "message_id": "msg_36",
+    "session_id": null,
+    "sender_id": "backend",
+    "sent_monotonic_ms": 0,
+    "payload": {
+      "related_message_id": null,
+      "request_id": null,
+      "code": "unauthenticated",
+      "message": "Authentication required",
+      "retryable": false
+    }
+  },
+  {
+    "schema_version": "0.5",
+    "message_type": "hello",
+    "message_id": "msg_37",
+    "session_id": "session_1",
+    "sender_id": "x3_client",
+    "sent_monotonic_ms": 0,
+    "payload": {
+      "mode": "resume",
+      "pairing_token": "synthetic-token-not-a-secret",
+      "creation_key": null,
+      "enrollment_snapshot_id": null,
+      "source_mode": "replay",
+      "last_memory_revision": 1
+    }
+  }
+]

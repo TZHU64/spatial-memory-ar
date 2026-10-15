@@ -1,0 +1,467 @@
+{
+  "fixture_version": "0.5",
+  "description": "02-current-continuity",
+  "synthetic": true,
+  "source_mode": "replay",
+  "initial_config": {
+    "current_claims_enabled": true,
+    "negative_evidence_enabled": true,
+    "max_capture_age_ms": 5000
+  },
+  "steps": [
+    {
+      "name": "Create paused session and explicitly start",
+      "inputs": [
+        {
+          "record_type": "wire_message",
+          "value": {
+            "schema_version": "0.5",
+            "message_type": "hello",
+            "message_id": "msg_1",
+            "session_id": null,
+            "sender_id": "x3_client",
+            "sent_monotonic_ms": 0,
+            "payload": {
+              "mode": "create",
+              "pairing_token": "synthetic-token-not-a-secret",
+              "creation_key": "create_1",
+              "enrollment_snapshot_id": "enrollment_v1",
+              "source_mode": "replay",
+              "last_memory_revision": 0
+            }
+          }
+        },
+        {
+          "record_type": "wire_message",
+          "value": {
+            "schema_version": "0.5",
+            "message_type": "hello_ack",
+            "message_id": "msg_2",
+            "session_id": "session_1",
+            "sender_id": "backend",
+            "sent_monotonic_ms": 0,
+            "payload": {
+              "memory_revision": 0,
+              "session_status": "paused",
+              "config_version": "config_v1",
+              "enrollment_snapshot_id": "enrollment_v1",
+              "source_mode": "replay"
+            }
+          }
+        },
+        {
+          "record_type": "wire_message",
+          "value": {
+            "schema_version": "0.5",
+            "message_type": "session_command",
+            "message_id": "msg_3",
+            "session_id": "session_1",
+            "sender_id": "x3_client",
+            "sent_monotonic_ms": 0,
+            "payload": {
+              "request_id": "start_1",
+              "command": "start",
+              "capture_epoch_id": "epoch_1"
+            }
+          }
+        },
+        {
+          "record_type": "wire_message",
+          "value": {
+            "schema_version": "0.5",
+            "message_type": "ack",
+            "message_id": "msg_4",
+            "session_id": "session_1",
+            "sender_id": "backend",
+            "sent_monotonic_ms": 0,
+            "payload": {
+              "acked_message_id": "msg_3",
+              "request_id": "start_1",
+              "stage": "applied",
+              "memory_revision": 1
+            }
+          }
+        }
+      ],
+      "expected_observations": [],
+      "expected_answer": null,
+      "expected_disposition": "accepted"
+    },
+    {
+      "name": "Capture before looking away",
+      "inputs": [
+        {
+          "record_type": "wire_message",
+          "value": {
+            "schema_version": "0.5",
+            "message_type": "frame",
+            "message_id": "msg_14",
+            "session_id": "session_1",
+            "sender_id": "x3_client",
+            "sent_monotonic_ms": 1020,
+            "payload": {
+              "frame_id": "late",
+              "request_id": null,
+              "capture_epoch_id": "epoch_1",
+              "camera_role": "rgb_main",
+              "camera_id": "measured_rgb_placeholder",
+              "capture_adapter": "camera2",
+              "sensor_timestamp_ns": "1000000000",
+              "timestamp_source": "realtime",
+              "clock_id": "camera_clock_1",
+              "captured_at": {
+                "wall_time": "2026-09-21T14:32:01+08:00",
+                "quality": "mapped",
+                "capture_monotonic_ms": 1000,
+                "uncertainty_ms": 0,
+                "device_boot_id": "boot_1"
+              },
+              "callback_monotonic_ms": 1010,
+              "width": 1920,
+              "height": 1080,
+              "encoding": "jpeg",
+              "source_rotation_degrees": 0,
+              "source_is_mirrored": false,
+              "source_mode": "replay",
+              "payload_bytes": 100,
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "acquisition_started_monotonic_ms": null
+            }
+          }
+        },
+        {
+          "record_type": "local_event",
+          "value": {
+            "event": "continuity_valid",
+            "at_monotonic_ms": 1000,
+            "frame_id": "late"
+          }
+        },
+        {
+          "record_type": "local_event",
+          "value": {
+            "event": "continuity_lost",
+            "at_monotonic_ms": 2000,
+            "frame_id": "late"
+          }
+        }
+      ],
+      "expected_observations": [],
+      "expected_answer": null,
+      "expected_disposition": "accepted"
+    },
+    {
+      "name": "Positive returns four seconds after capture",
+      "inputs": [
+        {
+          "record_type": "scene_result",
+          "value": {
+            "job_id": "job_late",
+            "frame_id": "late",
+            "request_id": null,
+            "status": "complete",
+            "object_candidates": [
+              {
+                "object_id": "phone_01",
+                "identity": "match",
+                "anchor_id": "desk_01",
+                "relation": "on",
+                "bbox": [
+                  0.3,
+                  0.3,
+                  0.5,
+                  0.5
+                ]
+              }
+            ],
+            "target_check": null
+          }
+        },
+        {
+          "record_type": "wire_message",
+          "value": {
+            "schema_version": "0.5",
+            "message_type": "query",
+            "message_id": "msg_15",
+            "session_id": "session_1",
+            "sender_id": "x3_client",
+            "sent_monotonic_ms": 5000,
+            "payload": {
+              "request_id": "q_late",
+              "object_id": "phone_01",
+              "intent": "current_location",
+              "region": null,
+              "capture_epoch_id": null,
+              "accepted_monotonic_ms": 5000
+            }
+          }
+        }
+      ],
+      "expected_observations": [
+        {
+          "observation_id": "obs_late",
+          "session_id": "session_1",
+          "source_mode": "replay",
+          "capture_epoch_id": "epoch_1",
+          "frame_id": "late",
+          "object_id": "phone_01",
+          "kind": "positive",
+          "captured_at": {
+            "wall_time": "2026-09-21T14:32:01+08:00",
+            "quality": "mapped",
+            "capture_monotonic_ms": 1000,
+            "uncertainty_ms": 0,
+            "device_boot_id": "boot_1"
+          },
+          "anchor_id": "desk_01",
+          "region": {
+            "anchor_id": "desk_01",
+            "region_id": "desk_01_region",
+            "region_version": "region_v1"
+          },
+          "region_assessment_id": null,
+          "inference_job_id": "job_late",
+          "validation_id": "validation_late",
+          "enrollment_version": "enrollment_v1",
+          "config_version": "config_v1"
+        }
+      ],
+      "expected_answer": {
+        "request_id": "q_late",
+        "object_id": "phone_01",
+        "intent": "current_location",
+        "evidence_status": "historical",
+        "spatial_status": "unavailable",
+        "text": "Last seen on desk_01",
+        "evidence_ids": [
+          "obs_late"
+        ],
+        "display_mode": "semantic_card",
+        "memory_revision": 2,
+        "anchor_id": "desk_01",
+        "last_seen_at": {
+          "wall_time": "2026-09-21T14:32:01+08:00",
+          "quality": "mapped",
+          "capture_monotonic_ms": 1000,
+          "uncertainty_ms": 0,
+          "device_boot_id": "boot_1"
+        },
+        "check_outcome": null,
+        "current_lease": null
+      },
+      "expected_disposition": "accepted"
+    },
+    {
+      "name": "New stationary view has valid continuity",
+      "inputs": [
+        {
+          "record_type": "wire_message",
+          "value": {
+            "schema_version": "0.5",
+            "message_type": "frame",
+            "message_id": "msg_16",
+            "session_id": "session_1",
+            "sender_id": "x3_client",
+            "sent_monotonic_ms": 10020,
+            "payload": {
+              "frame_id": "still",
+              "request_id": null,
+              "capture_epoch_id": "epoch_1",
+              "camera_role": "rgb_main",
+              "camera_id": "measured_rgb_placeholder",
+              "capture_adapter": "camera2",
+              "sensor_timestamp_ns": "10000000000",
+              "timestamp_source": "realtime",
+              "clock_id": "camera_clock_1",
+              "captured_at": {
+                "wall_time": "2026-09-21T14:32:10+08:00",
+                "quality": "mapped",
+                "capture_monotonic_ms": 10000,
+                "uncertainty_ms": 0,
+                "device_boot_id": "boot_1"
+              },
+              "callback_monotonic_ms": 10010,
+              "width": 1920,
+              "height": 1080,
+              "encoding": "jpeg",
+              "source_rotation_degrees": 0,
+              "source_is_mirrored": false,
+              "source_mode": "replay",
+              "payload_bytes": 100,
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "acquisition_started_monotonic_ms": null
+            }
+          }
+        },
+        {
+          "record_type": "local_event",
+          "value": {
+            "event": "continuity_valid",
+            "at_monotonic_ms": 10000,
+            "frame_id": "still"
+          }
+        },
+        {
+          "record_type": "scene_result",
+          "value": {
+            "job_id": "job_still",
+            "frame_id": "still",
+            "request_id": null,
+            "status": "complete",
+            "object_candidates": [
+              {
+                "object_id": "phone_01",
+                "identity": "match",
+                "anchor_id": "desk_01",
+                "relation": "on",
+                "bbox": [
+                  0.3,
+                  0.3,
+                  0.5,
+                  0.5
+                ]
+              }
+            ],
+            "target_check": null
+          }
+        },
+        {
+          "record_type": "wire_message",
+          "value": {
+            "schema_version": "0.5",
+            "message_type": "query",
+            "message_id": "msg_17",
+            "session_id": "session_1",
+            "sender_id": "x3_client",
+            "sent_monotonic_ms": 11000,
+            "payload": {
+              "request_id": "q_now",
+              "object_id": "phone_01",
+              "intent": "current_location",
+              "region": null,
+              "capture_epoch_id": null,
+              "accepted_monotonic_ms": 11000
+            }
+          }
+        }
+      ],
+      "expected_observations": [
+        {
+          "observation_id": "obs_still",
+          "session_id": "session_1",
+          "source_mode": "replay",
+          "capture_epoch_id": "epoch_1",
+          "frame_id": "still",
+          "object_id": "phone_01",
+          "kind": "positive",
+          "captured_at": {
+            "wall_time": "2026-09-21T14:32:10+08:00",
+            "quality": "mapped",
+            "capture_monotonic_ms": 10000,
+            "uncertainty_ms": 0,
+            "device_boot_id": "boot_1"
+          },
+          "anchor_id": "desk_01",
+          "region": {
+            "anchor_id": "desk_01",
+            "region_id": "desk_01_region",
+            "region_version": "region_v1"
+          },
+          "region_assessment_id": null,
+          "inference_job_id": "job_still",
+          "validation_id": "validation_still",
+          "enrollment_version": "enrollment_v1",
+          "config_version": "config_v1"
+        }
+      ],
+      "expected_answer": {
+        "request_id": "q_now",
+        "object_id": "phone_01",
+        "intent": "current_location",
+        "evidence_status": "current",
+        "spatial_status": "unavailable",
+        "text": "Observed now on desk",
+        "evidence_ids": [
+          "obs_still"
+        ],
+        "display_mode": "semantic_card",
+        "memory_revision": 3,
+        "anchor_id": "desk_01",
+        "last_seen_at": {
+          "wall_time": "2026-09-21T14:32:10+08:00",
+          "quality": "mapped",
+          "capture_monotonic_ms": 10000,
+          "uncertainty_ms": 0,
+          "device_boot_id": "boot_1"
+        },
+        "check_outcome": null,
+        "current_lease": {
+          "source_frame_id": "still",
+          "capture_epoch_id": "epoch_1",
+          "device_boot_id": "boot_1",
+          "capture_monotonic_ms": 10000,
+          "uncertainty_ms": 0,
+          "max_capture_age_ms": 5000
+        }
+      },
+      "expected_disposition": "accepted"
+    },
+    {
+      "name": "Lease expires without renewal",
+      "inputs": [
+        {
+          "record_type": "local_event",
+          "value": {
+            "event": "lease_expired",
+            "at_monotonic_ms": 15000,
+            "frame_id": "still"
+          }
+        },
+        {
+          "record_type": "wire_message",
+          "value": {
+            "schema_version": "0.5",
+            "message_type": "query",
+            "message_id": "msg_18",
+            "session_id": "session_1",
+            "sender_id": "x3_client",
+            "sent_monotonic_ms": 15000,
+            "payload": {
+              "request_id": "q_expired",
+              "object_id": "phone_01",
+              "intent": "current_location",
+              "region": null,
+              "capture_epoch_id": null,
+              "accepted_monotonic_ms": 15000
+            }
+          }
+        }
+      ],
+      "expected_observations": [],
+      "expected_answer": {
+        "request_id": "q_expired",
+        "object_id": "phone_01",
+        "intent": "current_location",
+        "evidence_status": "historical",
+        "spatial_status": "unavailable",
+        "text": "Last seen on desk_01",
+        "evidence_ids": [
+          "obs_still"
+        ],
+        "display_mode": "semantic_card",
+        "memory_revision": 3,
+        "anchor_id": "desk_01",
+        "last_seen_at": {
+          "wall_time": "2026-09-21T14:32:10+08:00",
+          "quality": "mapped",
+          "capture_monotonic_ms": 10000,
+          "uncertainty_ms": 0,
+          "device_boot_id": "boot_1"
+        },
+        "check_outcome": null,
+        "current_lease": null
+      },
+      "expected_disposition": "accepted"
+    }
+  ]
+}

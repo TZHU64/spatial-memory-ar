@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Walk review · Spatial Memory</title><link rel="stylesheet" href="/style.css"></head>
+<body>
+<main>
+ <header><div><div class="eyebrow">SPATIAL MEMORY / DEVELOPMENT</div><h1>Review your walk</h1><p id="subtitle">Loading your walk…</p></div><span class="badge">Local processing</span></header>
+ <section class="stats" id="stats"></section>
+ <div class="notice" id="notice">Label useful moments to measure what this first model baseline misses. Images stay local.</div>
+ <section class="workspace">
+  <div class="viewer">
+   <div class="videos"><figure><figcaption>VGA <span>Scene gate input</span></figcaption><video id="vga" preload="metadata" muted playsinline src="/media/vga.mp4"></video></figure><figure><figcaption>RGB <span>Reference for review</span></figcaption><video id="rgb" preload="metadata" muted playsinline src="/media/rgb.mp4"></video></figure></div>
+   <div class="transport"><button id="play">Play</button><button id="back" class="subtle">−1 sec</button><button id="forward" class="subtle">+1 sec</button><output id="clock">00:00</output><span id="sync" class="muted"></span></div>
+   <input id="scrub" type="range" step="0.01" aria-label="Walk position">
+   <canvas id="timeline" height="140" aria-label="Novelty scores and proposed capture times"></canvas>
+   <div class="legend"><span class="green">● Whole-view novelty</span><span class="orange">● Region novelty</span><span>│ Capture proposal</span></div>
+   <div id="decision" class="diagnostic"></div>
+  </div>
+  <aside>
+   <div class="eyebrow">LABEL A VISIBLE EVENT</div><h2>New place or object</h2><p class="muted">Mark the interval when the useful information is visible. The model needs one capture inside that interval.</p>
+   <div class="mark-buttons"><button id="markStart" class="subtle">Mark start</button><button id="markEnd" class="subtle">Mark end</button></div><p id="rangeLabel" class="muted">No interval selected</p>
+   <label for="eventLabel">What should be remembered?</label><input id="eventLabel" placeholder="e.g. Entered the kitchen; new sign appeared" maxlength="500">
+   <label for="importance">Importance</label><select id="importance"><option value="required">Useful new information</option><option value="optional">Useful context</option><option value="ignore">Familiar or irrelevant view</option></select>
+   <button id="addEvent" class="wide">Add event</button><div id="labelError" role="alert"></div>
+   <div id="events"></div><label class="check"><input id="reviewComplete" type="checkbox"> I reviewed the whole shared interval</label><button id="save" class="wide">Save labels &amp; score</button><p id="saveStatus" role="status" class="muted"></p>
+  </aside>
+ </section>
+ <section><div class="section-head"><div><div class="eyebrow">PROPOSED CAPTURES</div><h2>What each gate would keep</h2></div><select id="policy" aria-label="Capture policy"></select></div><div id="captures" class="capture-grid"></div></section>
+ <section class="results"><h2>Event coverage</h2><p class="muted">Recall uses your labeled useful events. Precision stays unavailable until you confirm the full review.</p><div id="metrics"></div></section>
+ <footer><p id="modelInfo"></p><details><summary>Evaluation limits</summary><ul id="limits"></ul></details></footer>
+</main><script src="/app.js"></script>
+</body></html>

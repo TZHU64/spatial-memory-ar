@@ -1,0 +1,16 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:gravity="center_vertical"
+    android:padding="22dp" android:background="#000000">
+ <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+     android:text="WALK RECORDER" android:textColor="#70EAC1" android:textSize="18sp" />
+ <TextView android:id="@+id/status" android:layout_width="match_parent" android:layout_height="wrap_content"
+     android:layout_marginTop="10dp" android:textColor="#FFFFFF" android:textSize="22sp" />
+ <TextView android:id="@+id/detail" android:layout_width="match_parent" android:layout_height="wrap_content"
+     android:layout_marginTop="8dp" android:textColor="#CCCCCC" android:textSize="15sp" />
+ <TextView android:id="@+id/actions" android:layout_width="match_parent" android:layout_height="wrap_content"
+     android:layout_marginTop="14dp" android:textColor="#FFFFFF" android:textSize="18sp" />
+ <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+     android:layout_marginTop="10dp" android:text="Swipe: select · Tap: confirm · Double tap: stop"
+     android:textColor="#AAAAAA" android:textSize="12sp" />
+</LinearLayout>

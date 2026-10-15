@@ -1,0 +1,281 @@
+{
+  "fixture_version": "0.5",
+  "description": "07-model-failure-and-omission",
+  "synthetic": true,
+  "source_mode": "replay",
+  "initial_config": {
+    "current_claims_enabled": false,
+    "negative_evidence_enabled": true,
+    "max_capture_age_ms": 5000
+  },
+  "steps": [
+    {
+      "name": "Create paused session and explicitly start",
+      "inputs": [
+        {
+          "record_type": "wire_message",
+          "value": {
+            "schema_version": "0.5",
+            "message_type": "hello",
+            "message_id": "msg_1",
+            "session_id": null,
+            "sender_id": "x3_client",
+            "sent_monotonic_ms": 0,
+            "payload": {
+              "mode": "create",
+              "pairing_token": "synthetic-token-not-a-secret",
+              "creation_key": "create_1",
+              "enrollment_snapshot_id": "enrollment_v1",
+              "source_mode": "replay",
+              "last_memory_revision": 0
+            }
+          }
+        },
+        {
+          "record_type": "wire_message",
+          "value": {
+            "schema_version": "0.5",
+            "message_type": "hello_ack",
+            "message_id": "msg_2",
+            "session_id": "session_1",
+            "sender_id": "backend",
+            "sent_monotonic_ms": 0,
+            "payload": {
+              "memory_revision": 0,
+              "session_status": "paused",
+              "config_version": "config_v1",
+              "enrollment_snapshot_id": "enrollment_v1",
+              "source_mode": "replay"
+            }
+          }
+        },
+        {
+          "record_type": "wire_message",
+          "value": {
+            "schema_version": "0.5",
+            "message_type": "session_command",
+            "message_id": "msg_3",
+            "session_id": "session_1",
+            "sender_id": "x3_client",
+            "sent_monotonic_ms": 0,
+            "payload": {
+              "request_id": "start_1",
+              "command": "start",
+              "capture_epoch_id": "epoch_1"
+            }
+          }
+        },
+        {
+          "record_type": "wire_message",
+          "value": {
+            "schema_version": "0.5",
+            "message_type": "ack",
+            "message_id": "msg_4",
+            "session_id": "session_1",
+            "sender_id": "backend",
+            "sent_monotonic_ms": 0,
+            "payload": {
+              "acked_message_id": "msg_3",
+              "request_id": "start_1",
+              "stage": "applied",
+              "memory_revision": 1
+            }
+          }
+        }
+      ],
+      "expected_observations": [],
+      "expected_answer": null,
+      "expected_disposition": "accepted"
+    },
+    {
+      "name": "Check model times out",
+      "inputs": [
+        {
+          "record_type": "wire_message",
+          "value": {
+            "schema_version": "0.5",
+            "message_type": "query",
+            "message_id": "msg_43",
+            "session_id": "session_1",
+            "sender_id": "x3_client",
+            "sent_monotonic_ms": 1000,
+            "payload": {
+              "request_id": "q_timeout",
+              "object_id": "phone_01",
+              "intent": "check_region",
+              "region": {
+                "anchor_id": "desk_01",
+                "region_id": "desk_01_region",
+                "region_version": "region_v1"
+              },
+              "capture_epoch_id": "epoch_1",
+              "accepted_monotonic_ms": 1000
+            }
+          }
+        },
+        {
+          "record_type": "wire_message",
+          "value": {
+            "schema_version": "0.5",
+            "message_type": "frame",
+            "message_id": "msg_44",
+            "session_id": "session_1",
+            "sender_id": "x3_client",
+            "sent_monotonic_ms": 1120,
+            "payload": {
+              "frame_id": "timeout",
+              "request_id": "q_timeout",
+              "capture_epoch_id": "epoch_1",
+              "camera_role": "rgb_main",
+              "camera_id": "measured_rgb_placeholder",
+              "capture_adapter": "camera2",
+              "sensor_timestamp_ns": "1100000000",
+              "timestamp_source": "realtime",
+              "clock_id": "camera_clock_1",
+              "captured_at": {
+                "wall_time": "2026-09-21T14:32:01.100000+08:00",
+                "quality": "mapped",
+                "capture_monotonic_ms": 1100,
+                "uncertainty_ms": 0,
+                "device_boot_id": "boot_1"
+              },
+              "callback_monotonic_ms": 1110,
+              "width": 1920,
+              "height": 1080,
+              "encoding": "jpeg",
+              "source_rotation_degrees": 0,
+              "source_is_mirrored": false,
+              "source_mode": "replay",
+              "payload_bytes": 100,
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "acquisition_started_monotonic_ms": 1050
+            }
+          }
+        },
+        {
+          "record_type": "scene_result",
+          "value": {
+            "job_id": "job_timeout",
+            "frame_id": "timeout",
+            "request_id": "q_timeout",
+            "status": "timeout",
+            "object_candidates": [],
+            "target_check": null
+          }
+        }
+      ],
+      "expected_observations": [],
+      "expected_answer": {
+        "request_id": "q_timeout",
+        "object_id": "phone_01",
+        "intent": "check_region",
+        "evidence_status": "unknown",
+        "spatial_status": "unavailable",
+        "text": "No saved sighting",
+        "evidence_ids": [],
+        "display_mode": "semantic_card",
+        "memory_revision": 1,
+        "anchor_id": null,
+        "last_seen_at": null,
+        "check_outcome": "inconclusive",
+        "current_lease": null
+      },
+      "expected_disposition": "inconclusive"
+    },
+    {
+      "name": "Empty candidate list alone is inconclusive",
+      "inputs": [
+        {
+          "record_type": "wire_message",
+          "value": {
+            "schema_version": "0.5",
+            "message_type": "query",
+            "message_id": "msg_45",
+            "session_id": "session_1",
+            "sender_id": "x3_client",
+            "sent_monotonic_ms": 15000,
+            "payload": {
+              "request_id": "q_omitted",
+              "object_id": "phone_01",
+              "intent": "check_region",
+              "region": {
+                "anchor_id": "desk_01",
+                "region_id": "desk_01_region",
+                "region_version": "region_v1"
+              },
+              "capture_epoch_id": "epoch_1",
+              "accepted_monotonic_ms": 15000
+            }
+          }
+        },
+        {
+          "record_type": "wire_message",
+          "value": {
+            "schema_version": "0.5",
+            "message_type": "frame",
+            "message_id": "msg_46",
+            "session_id": "session_1",
+            "sender_id": "x3_client",
+            "sent_monotonic_ms": 15120,
+            "payload": {
+              "frame_id": "omitted",
+              "request_id": "q_omitted",
+              "capture_epoch_id": "epoch_1",
+              "camera_role": "rgb_main",
+              "camera_id": "measured_rgb_placeholder",
+              "capture_adapter": "camera2",
+              "sensor_timestamp_ns": "15100000000",
+              "timestamp_source": "realtime",
+              "clock_id": "camera_clock_1",
+              "captured_at": {
+                "wall_time": "2026-09-21T14:32:15.100000+08:00",
+                "quality": "mapped",
+                "capture_monotonic_ms": 15100,
+                "uncertainty_ms": 0,
+                "device_boot_id": "boot_1"
+              },
+              "callback_monotonic_ms": 15110,
+              "width": 1920,
+              "height": 1080,
+              "encoding": "jpeg",
+              "source_rotation_degrees": 0,
+              "source_is_mirrored": false,
+              "source_mode": "replay",
+              "payload_bytes": 100,
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "acquisition_started_monotonic_ms": 15050
+            }
+          }
+        },
+        {
+          "record_type": "scene_result",
+          "value": {
+            "job_id": "job_omitted",
+            "frame_id": "omitted",
+            "request_id": "q_omitted",
+            "status": "complete",
+            "object_candidates": [],
+            "target_check": null
+          }
+        }
+      ],
+      "expected_observations": [],
+      "expected_answer": {
+        "request_id": "q_omitted",
+        "object_id": "phone_01",
+        "intent": "check_region",
+        "evidence_status": "unknown",
+        "spatial_status": "unavailable",
+        "text": "No saved sighting",
+        "evidence_ids": [],
+        "display_mode": "semantic_card",
+        "memory_revision": 1,
+        "anchor_id": null,
+        "last_seen_at": null,
+        "check_outcome": "inconclusive",
+        "current_lease": null
+      },
+      "expected_disposition": "inconclusive"
+    }
+  ]
+}

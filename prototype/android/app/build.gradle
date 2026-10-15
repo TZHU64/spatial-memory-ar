@@ -1,0 +1,40 @@
+plugins { id 'com.android.application'; id 'org.jetbrains.kotlin.android' }
+def localConfig = new Properties()
+def localProperties = rootProject.file('local.properties')
+if (localProperties.exists()) { localProperties.withInputStream { localConfig.load(it) } }
+// Local development only: configured keys are embedded in the debug APK.
+def demoMimoKey = System.getenv('MIMO_API_KEY') ?: localConfig.getProperty('spatialMemory.mimoApiKey', '')
+def demoMimoModel = localConfig.getProperty('spatialMemory.mimoModel', 'mimo-v2.6-flash')
+android {
+ namespace 'com.spatialmemory.demo'
+ compileSdk 32
+ defaultConfig { applicationId 'com.spatialmemory.demo'; minSdk 31; targetSdk 31; versionCode 11; versionName '0.8.0'; testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner' }
+ buildFeatures { viewBinding true }
+ buildTypes {
+  debug {
+   buildConfigField 'String', 'MIMO_API_KEY', groovy.json.JsonOutput.toJson(demoMimoKey)
+   buildConfigField 'String', 'MIMO_MODEL', groovy.json.JsonOutput.toJson(demoMimoModel)
+   buildConfigField 'String', 'BACKEND_URL', groovy.json.JsonOutput.toJson(localConfig.getProperty('spatialMemory.backendUrl', 'http://127.0.0.1:8765'))
+   buildConfigField 'String', 'PAIRING_TOKEN', groovy.json.JsonOutput.toJson(localConfig.getProperty('spatialMemory.pairingToken', ''))
+  }
+  release {
+   buildConfigField 'String', 'MIMO_API_KEY', '""'
+   buildConfigField 'String', 'MIMO_MODEL', '"mimo-v2.6-flash"'
+   buildConfigField 'String', 'BACKEND_URL', '""'
+   buildConfigField 'String', 'PAIRING_TOKEN', '""'
+  }
+ }
+ compileOptions { sourceCompatibility JavaVersion.VERSION_1_8; targetCompatibility JavaVersion.VERSION_1_8 }
+ kotlinOptions { jvmTarget = '1.8' }
+}
+dependencies {
+ androidTestImplementation 'androidx.test:runner:1.4.0'
+ androidTestImplementation 'junit:junit:4.13.2'
+ implementation 'com.google.mediapipe:tasks-vision:0.10.14'
+ implementation fileTree(dir: 'libs', include: ['*.aar'])
+ implementation 'androidx.core:core-ktx:1.7.0'
+ implementation 'androidx.appcompat:appcompat:1.3.0'
+ implementation 'androidx.fragment:fragment-ktx:1.5.3'
+ implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
+ implementation 'com.google.android.material:material:1.8.0'
+}

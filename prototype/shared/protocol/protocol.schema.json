@@ -1,0 +1,1761 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spatial-memory.invalid/protocol/0.5/protocol.schema.json",
+  "title": "Spatial Memory RGB demo protocol 0.5",
+  "$ref": "#/$defs/wire_message",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{1,128}$"
+    },
+    "point": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      ],
+      "items": false,
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "polygon": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "prefixItems": [
+          {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        ],
+        "items": false,
+        "minItems": 2,
+        "maxItems": 2
+      },
+      "minItems": 3
+    },
+    "source_mode": {
+      "enum": [
+        "live",
+        "replay",
+        "manual_diagnostic"
+      ]
+    },
+    "gate": {
+      "enum": [
+        "pass",
+        "fail",
+        "unknown"
+      ]
+    },
+    "time": {
+      "type": "object",
+      "properties": {
+        "wall_time": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "quality": {
+          "enum": [
+            "mapped",
+            "approximate",
+            "unknown"
+          ]
+        },
+        "capture_monotonic_ms": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "uncertainty_ms": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "device_boot_id": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "required": [
+        "wall_time",
+        "quality",
+        "capture_monotonic_ms",
+        "uncertainty_ms",
+        "device_boot_id"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "quality": {
+                "const": "mapped"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "capture_monotonic_ms": {
+                "type": "number",
+                "minimum": 0
+              },
+              "uncertainty_ms": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    "region_ref": {
+      "type": "object",
+      "properties": {
+        "anchor_id": {
+          "$ref": "#/$defs/id"
+        },
+        "region_id": {
+          "$ref": "#/$defs/id"
+        },
+        "region_version": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "required": [
+        "anchor_id",
+        "region_id",
+        "region_version"
+      ],
+      "additionalProperties": false
+    },
+    "lease": {
+      "type": "object",
+      "properties": {
+        "source_frame_id": {
+          "$ref": "#/$defs/id"
+        },
+        "capture_epoch_id": {
+          "$ref": "#/$defs/id"
+        },
+        "device_boot_id": {
+          "$ref": "#/$defs/id"
+        },
+        "capture_monotonic_ms": {
+          "type": "number",
+          "minimum": 0
+        },
+        "uncertainty_ms": {
+          "type": "number",
+          "minimum": 0
+        },
+        "max_capture_age_ms": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5000
+        }
+      },
+      "required": [
+        "source_frame_id",
+        "capture_epoch_id",
+        "device_boot_id",
+        "capture_monotonic_ms",
+        "uncertainty_ms",
+        "max_capture_age_ms"
+      ],
+      "additionalProperties": false
+    },
+    "answer_payload": {
+      "type": "object",
+      "properties": {
+        "request_id": {
+          "$ref": "#/$defs/id"
+        },
+        "object_id": {
+          "$ref": "#/$defs/id"
+        },
+        "intent": {
+          "enum": [
+            "current_location",
+            "last_seen",
+            "check_region"
+          ]
+        },
+        "evidence_status": {
+          "enum": [
+            "unknown",
+            "historical",
+            "contradicted",
+            "current"
+          ]
+        },
+        "spatial_status": {
+          "const": "unavailable"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidence_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "minItems": 0
+        },
+        "display_mode": {
+          "const": "semantic_card"
+        },
+        "memory_revision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "anchor_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "last_seen_at": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "check_outcome": {
+          "anyOf": [
+            {
+              "enum": [
+                "positive",
+                "negative",
+                "inconclusive"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "current_lease": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/lease"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "request_id",
+        "object_id",
+        "intent",
+        "evidence_status",
+        "spatial_status",
+        "text",
+        "evidence_ids",
+        "display_mode",
+        "memory_revision",
+        "anchor_id",
+        "last_seen_at",
+        "check_outcome",
+        "current_lease"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "evidence_status": {
+                "const": "current"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "current_lease": {
+                "$ref": "#/$defs/lease"
+              },
+              "last_seen_at": {
+                "$ref": "#/$defs/time"
+              },
+              "evidence_ids": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/id"
+                },
+                "minItems": 1
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "current_lease": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "evidence_status": {
+                "const": "unknown"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "evidence_ids": {
+                "maxItems": 0
+              },
+              "last_seen_at": {
+                "type": "null"
+              },
+              "anchor_id": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "evidence_ids": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/id"
+                },
+                "minItems": 1
+              },
+              "last_seen_at": {
+                "$ref": "#/$defs/time"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "candidate": {
+      "type": "object",
+      "properties": {
+        "object_id": {
+          "$ref": "#/$defs/id"
+        },
+        "identity": {
+          "enum": [
+            "match",
+            "ambiguous",
+            "unknown"
+          ]
+        },
+        "anchor_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "relation": {
+          "anyOf": [
+            {
+              "enum": [
+                "on"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "bbox": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "minItems": 4,
+          "maxItems": 4
+        }
+      },
+      "required": [
+        "object_id",
+        "identity",
+        "anchor_id",
+        "relation",
+        "bbox"
+      ],
+      "additionalProperties": false
+    },
+    "target_check": {
+      "type": "object",
+      "properties": {
+        "object_id": {
+          "$ref": "#/$defs/id"
+        },
+        "region": {
+          "$ref": "#/$defs/region_ref"
+        },
+        "target_presence": {
+          "enum": [
+            "present",
+            "not_detected",
+            "uncertain"
+          ]
+        }
+      },
+      "required": [
+        "object_id",
+        "region",
+        "target_presence"
+      ],
+      "additionalProperties": false
+    },
+    "scene_result": {
+      "type": "object",
+      "properties": {
+        "job_id": {
+          "$ref": "#/$defs/id"
+        },
+        "frame_id": {
+          "$ref": "#/$defs/id"
+        },
+        "request_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "enum": [
+            "complete",
+            "timeout",
+            "refused",
+            "invalid_output",
+            "service_error"
+          ]
+        },
+        "object_candidates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/candidate"
+          },
+          "minItems": 0
+        },
+        "target_check": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/target_check"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "job_id",
+        "frame_id",
+        "request_id",
+        "status",
+        "object_candidates",
+        "target_check"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "not": {
+                  "const": "complete"
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "object_candidates": {
+                "maxItems": 0
+              },
+              "target_check": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "region_assessment": {
+      "type": "object",
+      "properties": {
+        "assessment_id": {
+          "$ref": "#/$defs/id"
+        },
+        "frame_id": {
+          "$ref": "#/$defs/id"
+        },
+        "request_id": {
+          "$ref": "#/$defs/id"
+        },
+        "region": {
+          "$ref": "#/$defs/region_ref"
+        },
+        "projected_polygon": {
+          "$ref": "#/$defs/polygon"
+        },
+        "registration": {
+          "$ref": "#/$defs/gate"
+        },
+        "coverage": {
+          "$ref": "#/$defs/gate"
+        },
+        "quality": {
+          "$ref": "#/$defs/gate"
+        },
+        "occlusion": {
+          "$ref": "#/$defs/gate"
+        },
+        "covers_prior_uncertainty_region": {
+          "type": "boolean"
+        },
+        "operating_envelope_validated": {
+          "type": "boolean"
+        },
+        "method_version": {
+          "$ref": "#/$defs/id"
+        },
+        "config_version": {
+          "$ref": "#/$defs/id"
+        },
+        "reason_codes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 0
+        }
+      },
+      "required": [
+        "assessment_id",
+        "frame_id",
+        "request_id",
+        "region",
+        "projected_polygon",
+        "registration",
+        "coverage",
+        "quality",
+        "occlusion",
+        "covers_prior_uncertainty_region",
+        "operating_envelope_validated",
+        "method_version",
+        "config_version",
+        "reason_codes"
+      ],
+      "additionalProperties": false
+    },
+    "observation": {
+      "type": "object",
+      "properties": {
+        "observation_id": {
+          "$ref": "#/$defs/id"
+        },
+        "session_id": {
+          "$ref": "#/$defs/id"
+        },
+        "source_mode": {
+          "$ref": "#/$defs/source_mode"
+        },
+        "capture_epoch_id": {
+          "$ref": "#/$defs/id"
+        },
+        "frame_id": {
+          "$ref": "#/$defs/id"
+        },
+        "object_id": {
+          "$ref": "#/$defs/id"
+        },
+        "kind": {
+          "enum": [
+            "positive",
+            "negative"
+          ]
+        },
+        "captured_at": {
+          "$ref": "#/$defs/time"
+        },
+        "anchor_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "region": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/region_ref"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "region_assessment_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "inference_job_id": {
+          "$ref": "#/$defs/id"
+        },
+        "validation_id": {
+          "$ref": "#/$defs/id"
+        },
+        "enrollment_version": {
+          "$ref": "#/$defs/id"
+        },
+        "config_version": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "required": [
+        "observation_id",
+        "session_id",
+        "source_mode",
+        "capture_epoch_id",
+        "frame_id",
+        "object_id",
+        "kind",
+        "captured_at",
+        "anchor_id",
+        "region",
+        "region_assessment_id",
+        "inference_job_id",
+        "validation_id",
+        "enrollment_version",
+        "config_version"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "negative"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "anchor_id": {
+                "$ref": "#/$defs/id"
+              },
+              "region": {
+                "$ref": "#/$defs/region_ref"
+              },
+              "region_assessment_id": {
+                "$ref": "#/$defs/id"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "frame_payload": {
+      "type": "object",
+      "properties": {
+        "frame_id": {
+          "$ref": "#/$defs/id"
+        },
+        "request_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "capture_epoch_id": {
+          "$ref": "#/$defs/id"
+        },
+        "camera_role": {
+          "const": "rgb_main"
+        },
+        "camera_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "capture_adapter": {
+          "const": "camera2"
+        },
+        "sensor_timestamp_ns": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "timestamp_source": {
+          "enum": [
+            "realtime",
+            "unknown"
+          ]
+        },
+        "clock_id": {
+          "$ref": "#/$defs/id"
+        },
+        "captured_at": {
+          "$ref": "#/$defs/time"
+        },
+        "callback_monotonic_ms": {
+          "type": "number",
+          "minimum": 0
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 16384
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 16384
+        },
+        "encoding": {
+          "const": "jpeg"
+        },
+        "source_rotation_degrees": {
+          "enum": [
+            0,
+            90,
+            180,
+            270
+          ]
+        },
+        "source_is_mirrored": {
+          "type": "boolean"
+        },
+        "source_mode": {
+          "$ref": "#/$defs/source_mode"
+        },
+        "payload_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8388608
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "acquisition_started_monotonic_ms": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        }
+      },
+      "required": [
+        "frame_id",
+        "request_id",
+        "capture_epoch_id",
+        "camera_role",
+        "camera_id",
+        "capture_adapter",
+        "sensor_timestamp_ns",
+        "timestamp_source",
+        "clock_id",
+        "captured_at",
+        "callback_monotonic_ms",
+        "width",
+        "height",
+        "encoding",
+        "source_rotation_degrees",
+        "source_is_mirrored",
+        "source_mode",
+        "payload_bytes",
+        "sha256",
+        "acquisition_started_monotonic_ms"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "request_id": {
+                "type": "string"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "acquisition_started_monotonic_ms": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "acquisition_started_monotonic_ms": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "query_payload": {
+      "type": "object",
+      "properties": {
+        "request_id": {
+          "$ref": "#/$defs/id"
+        },
+        "object_id": {
+          "$ref": "#/$defs/id"
+        },
+        "intent": {
+          "enum": [
+            "current_location",
+            "last_seen",
+            "check_region"
+          ]
+        },
+        "region": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/region_ref"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "capture_epoch_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "accepted_monotonic_ms": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "request_id",
+        "object_id",
+        "intent",
+        "region",
+        "capture_epoch_id",
+        "accepted_monotonic_ms"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "intent": {
+                "const": "check_region"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "region": {
+                "$ref": "#/$defs/region_ref"
+              },
+              "capture_epoch_id": {
+                "$ref": "#/$defs/id"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "region": {
+                "type": "null"
+              },
+              "capture_epoch_id": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "hello_message": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "0.5"
+        },
+        "message_type": {
+          "const": "hello"
+        },
+        "message_id": {
+          "$ref": "#/$defs/id"
+        },
+        "session_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sender_id": {
+          "$ref": "#/$defs/id"
+        },
+        "sent_monotonic_ms": {
+          "type": "number",
+          "minimum": 0
+        },
+        "payload": {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "enum": [
+                "create",
+                "resume"
+              ]
+            },
+            "pairing_token": {
+              "type": "string",
+              "minLength": 1
+            },
+            "creation_key": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "enrollment_snapshot_id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "source_mode": {
+              "$ref": "#/$defs/source_mode"
+            },
+            "last_memory_revision": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "mode",
+            "pairing_token",
+            "creation_key",
+            "enrollment_snapshot_id",
+            "source_mode",
+            "last_memory_revision"
+          ],
+          "additionalProperties": false,
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "mode": {
+                    "const": "create"
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "creation_key": {
+                    "$ref": "#/$defs/id"
+                  },
+                  "enrollment_snapshot_id": {
+                    "$ref": "#/$defs/id"
+                  },
+                  "last_memory_revision": {
+                    "const": 0
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "creation_key": {
+                    "type": "null"
+                  },
+                  "enrollment_snapshot_id": {
+                    "type": "null"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "required": [
+        "schema_version",
+        "message_type",
+        "message_id",
+        "session_id",
+        "sender_id",
+        "sent_monotonic_ms",
+        "payload"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "payload": {
+                "properties": {
+                  "mode": {
+                    "const": "create"
+                  }
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "session_id": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "session_id": {
+                "$ref": "#/$defs/id"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "hello_ack_message": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "0.5"
+        },
+        "message_type": {
+          "const": "hello_ack"
+        },
+        "message_id": {
+          "$ref": "#/$defs/id"
+        },
+        "session_id": {
+          "$ref": "#/$defs/id"
+        },
+        "sender_id": {
+          "$ref": "#/$defs/id"
+        },
+        "sent_monotonic_ms": {
+          "type": "number",
+          "minimum": 0
+        },
+        "payload": {
+          "type": "object",
+          "properties": {
+            "memory_revision": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "session_status": {
+              "enum": [
+                "paused",
+                "stopped"
+              ]
+            },
+            "config_version": {
+              "$ref": "#/$defs/id"
+            },
+            "enrollment_snapshot_id": {
+              "$ref": "#/$defs/id"
+            },
+            "source_mode": {
+              "$ref": "#/$defs/source_mode"
+            }
+          },
+          "required": [
+            "memory_revision",
+            "session_status",
+            "config_version",
+            "enrollment_snapshot_id",
+            "source_mode"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "message_type",
+        "message_id",
+        "session_id",
+        "sender_id",
+        "sent_monotonic_ms",
+        "payload"
+      ],
+      "additionalProperties": false
+    },
+    "frame_message": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "0.5"
+        },
+        "message_type": {
+          "const": "frame"
+        },
+        "message_id": {
+          "$ref": "#/$defs/id"
+        },
+        "session_id": {
+          "$ref": "#/$defs/id"
+        },
+        "sender_id": {
+          "$ref": "#/$defs/id"
+        },
+        "sent_monotonic_ms": {
+          "type": "number",
+          "minimum": 0
+        },
+        "payload": {
+          "$ref": "#/$defs/frame_payload"
+        }
+      },
+      "required": [
+        "schema_version",
+        "message_type",
+        "message_id",
+        "session_id",
+        "sender_id",
+        "sent_monotonic_ms",
+        "payload"
+      ],
+      "additionalProperties": false
+    },
+    "query_message": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "0.5"
+        },
+        "message_type": {
+          "const": "query"
+        },
+        "message_id": {
+          "$ref": "#/$defs/id"
+        },
+        "session_id": {
+          "$ref": "#/$defs/id"
+        },
+        "sender_id": {
+          "$ref": "#/$defs/id"
+        },
+        "sent_monotonic_ms": {
+          "type": "number",
+          "minimum": 0
+        },
+        "payload": {
+          "$ref": "#/$defs/query_payload"
+        }
+      },
+      "required": [
+        "schema_version",
+        "message_type",
+        "message_id",
+        "session_id",
+        "sender_id",
+        "sent_monotonic_ms",
+        "payload"
+      ],
+      "additionalProperties": false
+    },
+    "answer_message": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "0.5"
+        },
+        "message_type": {
+          "const": "answer"
+        },
+        "message_id": {
+          "$ref": "#/$defs/id"
+        },
+        "session_id": {
+          "$ref": "#/$defs/id"
+        },
+        "sender_id": {
+          "$ref": "#/$defs/id"
+        },
+        "sent_monotonic_ms": {
+          "type": "number",
+          "minimum": 0
+        },
+        "payload": {
+          "$ref": "#/$defs/answer_payload"
+        }
+      },
+      "required": [
+        "schema_version",
+        "message_type",
+        "message_id",
+        "session_id",
+        "sender_id",
+        "sent_monotonic_ms",
+        "payload"
+      ],
+      "additionalProperties": false
+    },
+    "session_command_message": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "0.5"
+        },
+        "message_type": {
+          "const": "session_command"
+        },
+        "message_id": {
+          "$ref": "#/$defs/id"
+        },
+        "session_id": {
+          "$ref": "#/$defs/id"
+        },
+        "sender_id": {
+          "$ref": "#/$defs/id"
+        },
+        "sent_monotonic_ms": {
+          "type": "number",
+          "minimum": 0
+        },
+        "payload": {
+          "type": "object",
+          "properties": {
+            "request_id": {
+              "$ref": "#/$defs/id"
+            },
+            "command": {
+              "enum": [
+                "start",
+                "pause",
+                "resume",
+                "stop",
+                "reset"
+              ]
+            },
+            "capture_epoch_id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "request_id",
+            "command",
+            "capture_epoch_id"
+          ],
+          "additionalProperties": false,
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "command": {
+                    "enum": [
+                      "start",
+                      "resume"
+                    ]
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "capture_epoch_id": {
+                    "$ref": "#/$defs/id"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "capture_epoch_id": {
+                    "type": "null"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "required": [
+        "schema_version",
+        "message_type",
+        "message_id",
+        "session_id",
+        "sender_id",
+        "sent_monotonic_ms",
+        "payload"
+      ],
+      "additionalProperties": false
+    },
+    "ack_message": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "0.5"
+        },
+        "message_type": {
+          "const": "ack"
+        },
+        "message_id": {
+          "$ref": "#/$defs/id"
+        },
+        "session_id": {
+          "$ref": "#/$defs/id"
+        },
+        "sender_id": {
+          "$ref": "#/$defs/id"
+        },
+        "sent_monotonic_ms": {
+          "type": "number",
+          "minimum": 0
+        },
+        "payload": {
+          "type": "object",
+          "properties": {
+            "acked_message_id": {
+              "$ref": "#/$defs/id"
+            },
+            "request_id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "stage": {
+              "enum": [
+                "admitted",
+                "stored",
+                "applied"
+              ]
+            },
+            "memory_revision": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "acked_message_id",
+            "request_id",
+            "stage",
+            "memory_revision"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "message_type",
+        "message_id",
+        "session_id",
+        "sender_id",
+        "sent_monotonic_ms",
+        "payload"
+      ],
+      "additionalProperties": false
+    },
+    "error_message": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "0.5"
+        },
+        "message_type": {
+          "const": "error"
+        },
+        "message_id": {
+          "$ref": "#/$defs/id"
+        },
+        "session_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sender_id": {
+          "$ref": "#/$defs/id"
+        },
+        "sent_monotonic_ms": {
+          "type": "number",
+          "minimum": 0
+        },
+        "payload": {
+          "type": "object",
+          "properties": {
+            "related_message_id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "request_id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "code": {
+              "enum": [
+                "unauthenticated",
+                "schema_mismatch",
+                "unknown_session",
+                "deleted_session",
+                "stale_epoch",
+                "invalid_region",
+                "invalid_frame",
+                "id_conflict",
+                "superseded",
+                "timeout",
+                "budget_exhausted",
+                "invalid_state",
+                "invalid_message"
+              ]
+            },
+            "message": {
+              "type": "string",
+              "minLength": 1
+            },
+            "retryable": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "related_message_id",
+            "request_id",
+            "code",
+            "message",
+            "retryable"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "message_type",
+        "message_id",
+        "session_id",
+        "sender_id",
+        "sent_monotonic_ms",
+        "payload"
+      ],
+      "additionalProperties": false
+    },
+    "status_message": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "0.5"
+        },
+        "message_type": {
+          "const": "status"
+        },
+        "message_id": {
+          "$ref": "#/$defs/id"
+        },
+        "session_id": {
+          "$ref": "#/$defs/id"
+        },
+        "sender_id": {
+          "$ref": "#/$defs/id"
+        },
+        "sent_monotonic_ms": {
+          "type": "number",
+          "minimum": 0
+        },
+        "payload": {
+          "type": "object",
+          "properties": {
+            "capture_state": {
+              "enum": [
+                "stopped",
+                "starting",
+                "live",
+                "paused",
+                "error"
+              ]
+            },
+            "capture_epoch_id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "source_mode": {
+              "$ref": "#/$defs/source_mode"
+            },
+            "foreground": {
+              "type": "boolean"
+            },
+            "wear_state": {
+              "enum": [
+                "worn",
+                "not_worn",
+                "unknown"
+              ]
+            },
+            "current_claims_enabled": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "capture_state",
+            "capture_epoch_id",
+            "source_mode",
+            "foreground",
+            "wear_state",
+            "current_claims_enabled"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "message_type",
+        "message_id",
+        "session_id",
+        "sender_id",
+        "sent_monotonic_ms",
+        "payload"
+      ],
+      "additionalProperties": false
+    },
+    "ping_message": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "0.5"
+        },
+        "message_type": {
+          "const": "ping"
+        },
+        "message_id": {
+          "$ref": "#/$defs/id"
+        },
+        "session_id": {
+          "$ref": "#/$defs/id"
+        },
+        "sender_id": {
+          "$ref": "#/$defs/id"
+        },
+        "sent_monotonic_ms": {
+          "type": "number",
+          "minimum": 0
+        },
+        "payload": {
+          "type": "object",
+          "properties": {
+            "nonce": {
+              "$ref": "#/$defs/id"
+            }
+          },
+          "required": [
+            "nonce"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "message_type",
+        "message_id",
+        "session_id",
+        "sender_id",
+        "sent_monotonic_ms",
+        "payload"
+      ],
+      "additionalProperties": false
+    },
+    "pong_message": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "0.5"
+        },
+        "message_type": {
+          "const": "pong"
+        },
+        "message_id": {
+          "$ref": "#/$defs/id"
+        },
+        "session_id": {
+          "$ref": "#/$defs/id"
+        },
+        "sender_id": {
+          "$ref": "#/$defs/id"
+        },
+        "sent_monotonic_ms": {
+          "type": "number",
+          "minimum": 0
+        },
+        "payload": {
+          "type": "object",
+          "properties": {
+            "nonce": {
+              "$ref": "#/$defs/id"
+            }
+          },
+          "required": [
+            "nonce"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "message_type",
+        "message_id",
+        "session_id",
+        "sender_id",
+        "sent_monotonic_ms",
+        "payload"
+      ],
+      "additionalProperties": false
+    },
+    "wire_message": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/hello_message"
+        },
+        {
+          "$ref": "#/$defs/hello_ack_message"
+        },
+        {
+          "$ref": "#/$defs/frame_message"
+        },
+        {
+          "$ref": "#/$defs/query_message"
+        },
+        {
+          "$ref": "#/$defs/answer_message"
+        },
+        {
+          "$ref": "#/$defs/session_command_message"
+        },
+        {
+          "$ref": "#/$defs/ack_message"
+        },
+        {
+          "$ref": "#/$defs/error_message"
+        },
+        {
+          "$ref": "#/$defs/status_message"
+        },
+        {
+          "$ref": "#/$defs/ping_message"
+        },
+        {
+          "$ref": "#/$defs/pong_message"
+        }
+      ]
+    }
+  }
+}

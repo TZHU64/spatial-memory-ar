@@ -1,0 +1,135 @@
+[
+  {
+    "record_type": "session",
+    "value": {
+      "schema_version": "0.6",
+      "session_id": "demo_1",
+      "enrollment_version": "references_1"
+    }
+  },
+  {
+    "record_type": "observe_request",
+    "value": {
+      "schema_version": "0.6",
+      "session_id": "demo_1",
+      "request_id": "request_1",
+      "capture_sequence": 1,
+      "captured_at": "2026-09-22T10:00:00+08:00",
+      "time_quality": "approximate",
+      "sensor_timestamp_ns": null,
+      "image_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  },
+  {
+    "record_type": "model_proposal",
+    "value": {
+      "target_presence": "present",
+      "identity": "match",
+      "location_id": "desk_01",
+      "view_quality": "clear"
+    }
+  },
+  {
+    "record_type": "observe_response",
+    "value": {
+      "schema_version": "0.6",
+      "session_id": "demo_1",
+      "request_id": "request_1",
+      "outcome": "saved",
+      "notice": "Last seen on desk",
+      "memory": {
+        "evidence_status": "historical",
+        "sighting": {
+          "observation_id": "obs_1",
+          "source_request_id": "request_1",
+          "capture_sequence": 1,
+          "object_id": "phone_01",
+          "location_id": "desk_01",
+          "captured_at": "2026-09-22T10:00:00+08:00",
+          "time_quality": "approximate"
+        }
+      }
+    }
+  },
+  {
+    "record_type": "model_proposal",
+    "value": {
+      "target_presence": "not_detected",
+      "identity": "unknown",
+      "location_id": null,
+      "view_quality": "clear"
+    }
+  },
+  {
+    "record_type": "observe_response",
+    "value": {
+      "schema_version": "0.6",
+      "session_id": "demo_1",
+      "request_id": "request_2",
+      "outcome": "not_detected",
+      "notice": "Phone not found in this view",
+      "memory": {
+        "evidence_status": "historical",
+        "sighting": {
+          "observation_id": "obs_1",
+          "source_request_id": "request_1",
+          "capture_sequence": 1,
+          "object_id": "phone_01",
+          "location_id": "desk_01",
+          "captured_at": "2026-09-22T10:00:00+08:00",
+          "time_quality": "approximate"
+        }
+      }
+    }
+  },
+  {
+    "record_type": "recall_request",
+    "value": {
+      "schema_version": "0.6",
+      "session_id": "demo_1",
+      "request_id": "query_1"
+    }
+  },
+  {
+    "record_type": "recall_response",
+    "value": {
+      "schema_version": "0.6",
+      "session_id": "demo_1",
+      "request_id": "query_1",
+      "memory": {
+        "evidence_status": "historical",
+        "sighting": {
+          "observation_id": "obs_1",
+          "source_request_id": "request_1",
+          "capture_sequence": 1,
+          "object_id": "phone_01",
+          "location_id": "desk_01",
+          "captured_at": "2026-09-22T10:00:00+08:00",
+          "time_quality": "approximate"
+        }
+      }
+    }
+  },
+  {
+    "record_type": "recall_response",
+    "value": {
+      "schema_version": "0.6",
+      "session_id": "demo_1",
+      "request_id": "query_empty",
+      "memory": {
+        "evidence_status": "unknown",
+        "sighting": null
+      }
+    }
+  },
+  {
+    "record_type": "error",
+    "value": {
+      "schema_version": "0.6",
+      "session_id": "demo_1",
+      "request_id": "request_1",
+      "code": "model_failed",
+      "message": "Model request timed out"
+    }
+  }
+]
